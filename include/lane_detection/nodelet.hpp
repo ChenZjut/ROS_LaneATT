@@ -65,6 +65,10 @@ private:
     bool debug;
     int max_batch_size;
 
+    int channel_;
+    int width_;
+    int height_;
+
     std::vector<float> mean_;
     std::vector<float> std_;
 

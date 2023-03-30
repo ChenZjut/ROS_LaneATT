@@ -45,8 +45,8 @@ private:
 struct Detection {
     float unknown;
     float score;
-    float start_x;
     float start_y;
+    float start_x;
     float length;
     float lane_xs[72];
 };
@@ -98,6 +98,3 @@ private:
 };
 
 } // namespace segment
-
-
-

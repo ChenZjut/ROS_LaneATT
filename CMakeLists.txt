@@ -72,6 +72,7 @@ find_library(CUDNN_LIBRARY
         PATHS $ENV{LD_LIBRARY_PATH} ${__libpath_cudart} ${CUDNN_ROOT_DIR} ${PC_CUDNN_LIBRARY_DIRS} ${CMAKE_INSTALL_PREFIX}
         PATH_SUFFIXES lib lib64 bin
         DOC "CUDNN library." )
+set(CUDNN_LIBRARY "/usr/local/cuda/lib64/libcudnn.so")
 if(CUDNN_LIBRARY)
     if (CUDA_VERBOSE)
         message(STATUS "CUDNN is available!")

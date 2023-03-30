@@ -3,6 +3,7 @@
 
 #include <NvOnnxConfig.h>
 #include <NvOnnxParser.h>
+#include <NvInferPlugin.h>
 
 #include "trt_det.hpp"
 
@@ -53,6 +54,7 @@ bool Net::prepare()
 Net::Net(const std::string &engine_path, bool verbose)
 {
     Logger logger(verbose);
+    initLibNvInferPlugins(&logger, "");
     runtime_ = unique_ptr<nvinfer1::IRuntime>(nvinfer1::createInferRuntime(logger));
     load(engine_path);
     if (!prepare()) {
@@ -235,9 +237,6 @@ float Net::LaneIoU(const Detection& a, const Detection& b) const
     int end_a = start_a + static_cast<int>(a.length + 0.5f) - 1;
     int end_b = start_b + static_cast<int>(b.length + 0.5f) - 1;
     int end = std::min(std::min(end_a, end_b), N_STRIPS);
-    // if (end < start) {
-    //     return 1.0f / 0.0f;
-    // }
     float dist = 0.0f;
     for (int i = start; i <= end; ++i) {
         dist += fabs(a.lane_xs[i] - b.lane_xs[i]);
@@ -301,8 +300,3 @@ void Net::PostProcess(const cv::Mat& lane_image, float conf_thresh, float nms_th
     cv::waitKey(10);
 }
 }
-
-
-
-
-
