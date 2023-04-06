@@ -149,7 +149,7 @@ void Net::save(const std::string & path)
     file.write(reinterpret_cast<const char *>(plan_->data()), plan_->size());
 }
 
-void Net::infer(const cv::Mat &in_img, std::vector<void *> & buffers, const int batch_size)
+void Net::infer(const cv::Mat &in_img, std::vector<void *> & buffers, const int batch_size, cv::Mat & res_image)
 {
     const int INPUT_H = getInputSize()[1];
     const int INPUT_W = getInputSize()[2];
@@ -202,7 +202,7 @@ void Net::infer(const cv::Mat &in_img, std::vector<void *> & buffers, const int 
     cudaStreamSynchronize(stream_);
     cudaFree(buffers[0]);
     cudaFree(buffers[1]);
-    PostProcess(img_resize);
+    res_image = PostProcess(img_resize);
 
 }
 
@@ -237,6 +237,7 @@ float Net::LaneIoU(const Detection& a, const Detection& b) const
     int end_a = start_a + static_cast<int>(a.length + 0.5f) - 1;
     int end_b = start_b + static_cast<int>(b.length + 0.5f) - 1;
     int end = std::min(std::min(end_a, end_b), N_STRIPS);
+
     float dist = 0.0f;
     for (int i = start; i <= end; ++i) {
         dist += fabs(a.lane_xs[i] - b.lane_xs[i]);
@@ -245,7 +246,7 @@ float Net::LaneIoU(const Detection& a, const Detection& b) const
     return dist;
 }
 
-void Net::PostProcess(const cv::Mat& lane_image, float conf_thresh, float nms_thresh, int nms_topk) const
+cv::Mat Net::PostProcess(const cv::Mat& lane_image, float conf_thresh, float nms_thresh, int nms_topk) const
 {
     const int INPUT_H = getInputSize()[1];
     // 1.Do NMS
@@ -256,7 +257,7 @@ void Net::PostProcess(const cv::Mat& lane_image, float conf_thresh, float nms_th
             candidates.push_back(det);
         }
     }
-    std::cout << candidates.size() << std::endl;
+    // std::cout << candidates.size() << std::endl;
     std::sort(candidates.begin(), candidates.end(), [=](const Detection& a, const Detection& b) { return a.score > b.score; });
     for (int i = 0; i < candidates.size(); ++i) {
         if (candidates[i].score < 0.0f) {
@@ -296,7 +297,6 @@ void Net::PostProcess(const cv::Mat& lane_image, float conf_thresh, float nms_th
             cv::circle(lane_image, point, 1, cv::Scalar(0, 255, 0), -1);
         }
     }
-    cv::imshow("laneatt_trt", lane_image);
-    cv::waitKey(10);
+    return lane_image;
 }
 }

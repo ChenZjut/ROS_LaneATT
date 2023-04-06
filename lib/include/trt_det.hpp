@@ -67,7 +67,7 @@ public:
     void save(const std::string & path);
 
     // Infer using pre-allocated GPU buffers {data}
-    void infer(const cv::Mat &in_img, std::vector<void *> & buffers, const int batch_size);
+    void infer(const cv::Mat &in_img, std::vector<void *> & buffers, const int batch_size, cv::Mat & res_image);
 
     // Get (c, h, w) size of the fixed input
     std::vector<int> getInputSize() const;
@@ -82,11 +82,11 @@ public:
 
     float LaneIoU(const Detection & a, const Detection & b) const;
 
-    void PostProcess(const cv::Mat & lane_image, float conf_thresh=0.4f, float nms_thresh=50.f, int nms_topk=4) const;
+    cv::Mat PostProcess(const cv::Mat & lane_image, float conf_thresh=0.4f, float nms_thresh=50.f, int nms_topk=4) const;
 
 private:
     unique_ptr<nvinfer1::IRuntime> runtime_ = nullptr;
-     unique_ptr<nvinfer1::IHostMemory> plan_ = nullptr;
+    unique_ptr<nvinfer1::IHostMemory> plan_ = nullptr;
     unique_ptr<nvinfer1::ICudaEngine> engine_ = nullptr;
     unique_ptr<nvinfer1::IExecutionContext> context_ = nullptr;
     cudaStream_t stream_ = nullptr;
